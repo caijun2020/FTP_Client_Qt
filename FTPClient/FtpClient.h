@@ -24,14 +24,6 @@ public:
     explicit FtpClient(QObject *parent = 0);
     ~FtpClient();
 
-    void get(QString fileName, QString dir);
-    void put(QString fileName, QString dir);
-    void setUserInfo(QString user, QString pwd);
-    void setHostPort(QString ip, int port = FTP_DEFAULT_PORT);
-    bool getConnectionStatus() const;
-    void setPath(QString path);
-
-
 public:
     enum{
         FTP_DEFAULT_PORT = 21
@@ -46,8 +38,17 @@ signals:
 
 public slots:
 
+    void get(QString fileName, QString dir);
+    void put(QString fileName, QString dir);
+
+    void setUserInfo(QString user, QString pwd);
+    void setHostPort(QString ip, int port = FTP_DEFAULT_PORT);
+    bool getConnectionStatus() const;
+    void setPath(QString path);
+
     bool connectToServer();
     bool disconnectFromServer();
+
     void cdTo(QString path);
     void cdToRoot();
     void cdToParent();
@@ -80,6 +81,8 @@ private:
     };
 
     QList<struct File_Info> m_uploadFileQueue;
+
+    bool m_putDirFlag;  // This flag is used to indicate upload dir to server
 
     // Re-connect to server
     void reConnectToServer();

@@ -3,6 +3,10 @@
 Development by Qt 4.8.1
 
 
+Version: V1.0 2020-Aug-29
+1. Bugfix for upload whole directory if the dir is subdirs. cdToParent will be called even though upload files.
+  
+
 Version: V1.0 2020-Aug-28
 1. Implement the basic FTP client functions(login, download/upload files)
 2. FTP client class and UI widget class are independent

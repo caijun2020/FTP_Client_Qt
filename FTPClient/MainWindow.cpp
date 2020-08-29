@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle( tr("FTP Client") );
 
     // Set Menu Bar Version Info
-    ui->menuVersion->addAction("V1.0 2020-Aug-28");
+    ui->menuVersion->addAction("V1.0 2020-Aug-29");
 }
 
 MainWindow::~MainWindow()

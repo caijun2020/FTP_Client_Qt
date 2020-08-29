@@ -138,7 +138,7 @@ void FtpClientWidget::on_pushButton_connect_clicked()
 
 void FtpClientWidget::addToServerList(const QUrlInfo &urlInfo)
 {
-    qDebug() << "addToServerList " << urlInfo.name();
+    //qDebug() << "addToServerList " << urlInfo.name();
 
     QListWidgetItem* item = new QListWidgetItem(urlInfo.name());
 

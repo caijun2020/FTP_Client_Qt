@@ -8,6 +8,7 @@ PURPOSE:        FTP client
 
 #include "FtpClient.h"
 #include <QFileInfo>
+#include <QDir>
 #include "QUtilityBox.h"
 
 
@@ -15,7 +16,8 @@ FtpClient::FtpClient(QObject *parent):
     m_ftp(NULL),
     m_pUrl(new QUrl),
     m_pFile(NULL),
-    m_connectedFlag(false)
+    m_connectedFlag(false),
+    m_putDirFlag(false)
 {
     m_statusMsg.clear();
     m_pUrl->setScheme("ftp");
@@ -178,9 +180,11 @@ void FtpClient::ftpCommandFinished(int commandId, bool error)
         m_pFile = NULL;
 
         // Check upload queue, if not empty send out the files in queue
-        if(false == processUploadQueue())
+        if(false == processUploadQueue() && m_putDirFlag)
         {
-            qDebug() << "processUploadQueue() == false";
+            // Reset flag
+            m_putDirFlag = false;
+
             // file upload complete, go back to parent dir
             cdToParent();
         }
@@ -365,11 +369,9 @@ void FtpClient::put(QString fileName, QString dir)
         mkdir(fileName);
         m_statusMsg = tr("Created directory %1").arg(fileName);
 
-        // Enter to created dir to upload files
-        QString newDir = m_pUrl->path().append("/").append(fileName);
-        cdTo(newDir);
-
-        putFilesInDir(fullFileName);
+        if(!putFilesInDir(fullFileName))
+        {
+        }
     }
 
     // Emit status message
@@ -426,6 +428,7 @@ void FtpClient::cdToParent()
     QString path = m_pUrl->path();
     path = path.left(path.lastIndexOf('/'));
 
+    qDebug() <<"cdToParent cdTo=" << path;
     cdTo(path);
 }
 
@@ -466,20 +469,28 @@ bool FtpClient::putFilesInDir(QString dir)
     {
         if(infoList.at(i).isFile())
         {
-            //put(infoList.at(i).fileName(), infoList.at(i).canonicalPath());
             pushUploadQueue(infoList.at(i).fileName(), infoList.at(i).canonicalPath());
         }
     }
 
     // Send out the 1st file in Queue
-    if(infoList.size() >= 0 )
+    // There are . and .. dir, so here infoList.size() at least >= 2
+    if(infoList.size() > 2)
     {
-        ret = true;
-
         struct File_Info info;
         if(popUploadQueue(info))
         {
+            // Set flag indicate putting files in dir
+            m_putDirFlag = true;
+
+            // Enter to created dir to upload files
+            QDir dirInfo(dir);
+            QString newDir = m_pUrl->path().append("/").append(dirInfo.dirName());
+            cdTo(newDir);
+
             put(info.fileName, info.dirPath);
+
+            ret = true;
         }
     }
 
